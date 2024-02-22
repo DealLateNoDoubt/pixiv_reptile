@@ -26,5 +26,5 @@ PICTURE_AJAX_URL = 'https://www.pixiv.net/touch/ajax/illust/details?illust_id={0
 # endregion
 
 # region 保存地址
-SAVE_PATH = 'Q:\\图集\\'
+SAVE_PATH = 'E:\\图集\\'
 # endregion

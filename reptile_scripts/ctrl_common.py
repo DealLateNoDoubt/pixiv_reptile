@@ -4,19 +4,6 @@ import collections
 
 from . import defines
 
-
-# def _getSavePath():
-#     now = datetime.datetime.now()
-#     year = str(now.year)
-#     month = str(now.month).zfill(2)
-#     sPath = ''.join([year, '-', month, '月'])
-#     sSavePath = os.path.join(defines.SAVE_PATH, sPath)
-#     if not os.path.exists(sSavePath):
-#         os.makedirs(sSavePath)
-#     return sSavePath
-# LOG_PATH = _getSavePath()
-
-
 def CheckFileIsExists(sFilePath):
     # 检查文件是否存在
     if os.path.exists(sFilePath):

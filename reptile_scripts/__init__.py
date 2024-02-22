@@ -1,5 +1,5 @@
-from .pixiv_dynamic import CPixivDynamic
+from . import pixiv_dynamic
 
-from .pixiv_painter import CPixivPainter, PAINTER_ID
+from . import pixiv_painter
 
-from .pixiv_search import CPixivSearch, WORDS
+from . import pixiv_search

@@ -8,7 +8,7 @@ REPTILE_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/201001
 # endregion
 
 # region Cookies
-PIXIV_COOKIES = '51556051_rjvcosNbBplfIfQM0Nu7NK1zaNyrvwR7'
+PIXIV_COOKIES = ''  # 填写登录p站后的COOKIES
 COOKIE_HEAD = 'PHPSESSID='
 # endregion
 

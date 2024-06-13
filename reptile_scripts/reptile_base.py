@@ -27,13 +27,14 @@ class CReptileBase:       # 爬虫基类
     def SetCookie(self, sCookie):
         self.m_dctHeaders["Cookie"] = "".join([defines.COOKIE_HEAD, sCookie])
 
-
+    # region 线程下载
     def RunDownThread(self):
         num_batch = len(self.m_lstInfoItems)
-        elements = num_batch // defines.NUM_THREAD
-        remaining_elements = num_batch % defines.NUM_THREAD
+        num_thread = defines.NUM_THREAD if num_batch > defines.NUM_THREAD else num_batch
+        elements = num_batch // num_thread
+        remaining_elements = num_batch % num_thread
 
-        for i in range(defines.NUM_THREAD):
+        for i in range(num_thread):
             start = i * elements + min(i, remaining_elements)
             end = start + elements + (1 if i < remaining_elements else 0) - 1
             thread = threading.Thread(target=self._downByThread, args=(start, end))
@@ -49,6 +50,7 @@ class CReptileBase:       # 爬虫基类
     def _downByThread(self, start, end):
         for i in range(start, end + 1):
             self._getPicture(self.m_lstInfoItems[i])
+    # endregion
 
     def _initData(self):
         self.m_oSession = requests.session()    # 请求对象
@@ -129,14 +131,33 @@ class CReptileBase:       # 爬虫基类
         elif bManga:
             # 多图
             pre = dctIllustDetials['manga_a']
-            for i in range(len(pre)):
-                sDownUrl = pre[i]['url_big']
-                sPictureSuffix = sDownUrl[-6:]
-                sPicturePath = sPictureSuffix
-                if sPictureSuffix[0] == 'p':
-                    sPicturePath = '_'.join([iPictureID, sPictureName, sPictureSuffix[1:]])
-                sDownPath = os.path.join(sSavePath, sPicturePath)
-                self._downOne(sDownUrl, dctHeaders, sDownPath)
+            dir = os.path.join(sSavePath, ''.join([iPictureID, sPictureName]))
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            num_len = len(pre)
+            num_mange_thread = defines.MANGE_NUM_THREAD if num_len > defines.MANGE_NUM_THREAD else num_len
+            elements = num_len // num_mange_thread
+            remaining_elements = num_len % num_mange_thread
+            lst_threads = []
+            def _downManageThread(start, end):
+                for i in range(start, end + 1):
+                    sDownUrl = pre[i]['url_big']
+                    sPictureSuffix = sDownUrl[-6:]
+                    sPicturePath = sPictureSuffix
+                    if sPictureSuffix[0] == 'p':
+                        sPicturePath = '_'.join([iPictureID, sPictureName, sPictureSuffix[1:]])
+                    sDownPath = os.path.join(dir, sPicturePath)
+                    self._downOne(sDownUrl, dctHeaders, sDownPath)
+
+            for i in range(num_mange_thread):
+                start = i * elements + min(i, remaining_elements)
+                end = start + elements + (1 if i < remaining_elements else 0) - 1
+                thread = threading.Thread(target=_downManageThread, args=(start, end))
+                lst_threads.append(thread)
+                thread.start()
+            for thread in lst_threads:
+                thread.join()
+            del lst_threads[:]
         else:
             # 单图
             sDownUrl = dctIllustDetials['url_big']

@@ -8,16 +8,17 @@ REPTILE_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/201001
 # endregion
 
 # region Cookies
-PIXIV_COOKIES = ''
+PIXIV_COOKIES = ''  # 请自行添加！！！！！！！！！
 COOKIE_HEAD = 'PHPSESSID='
 # endregion
 
 # region 线程数量
-NUM_THREAD = 5
+NUM_THREAD = 10     # 下载线程数量
+MANGE_NUM_THREAD = 5  # 多图下载线程数量
 # endregion
 
 # region 重试次数
-RESTART_TIMES = 1
+RESTART_TIMES = 3
 # endregion
 
 # region Log上限数量

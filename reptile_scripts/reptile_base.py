@@ -9,7 +9,7 @@ import imageio
 import zipfile
 import urllib3
 import requests
-
+import threading
 from . import defines
 from . import ctrl_common
 
@@ -27,6 +27,29 @@ class CReptileBase:       # 爬虫基类
     def SetCookie(self, sCookie):
         self.m_dctHeaders["Cookie"] = "".join([defines.COOKIE_HEAD, sCookie])
 
+
+    def RunDownThread(self):
+        num_batch = len(self.m_lstInfoItems)
+        elements = num_batch // defines.NUM_THREAD
+        remaining_elements = num_batch % defines.NUM_THREAD
+
+        for i in range(defines.NUM_THREAD):
+            start = i * elements + min(i, remaining_elements)
+            end = start + elements + (1 if i < remaining_elements else 0) - 1
+            thread = threading.Thread(target=self._downByThread, args=(start, end))
+            self.m_lstThread.append(thread)
+            thread.start()
+
+        for thread in self.m_lstThread:
+            thread.join()
+
+        print("清空线程列表")
+        del self.m_lstThread[:]
+
+    def _downByThread(self, start, end):
+        for i in range(start, end + 1):
+            self._getPicture(self.m_lstInfoItems[i])
+
     def _initData(self):
         self.m_oSession = requests.session()    # 请求对象
         # 代理信息
@@ -41,6 +64,10 @@ class CReptileBase:       # 爬虫基类
             # 登录Cookie
             'Cookie': '',
         }
+        # 数据列表
+        self.m_lstInfoItems = []
+        # 线程
+        self.m_lstThread = []
 
     def _sleep(self, fSleepTime=0):
         if fSleepTime == 0:
@@ -72,12 +99,10 @@ class CReptileBase:       # 爬虫基类
         iPictureID = dctInfo['pictureId']
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
         dctHeaders['Referer'] = defines.PICTURE_URL.format(iPictureID)
-
         self._sleep()
         sPictureAjaxUrl = defines.PICTURE_AJAX_URL.format(iPictureID)
         oAjaxData = self._sendRequest(sPictureAjaxUrl, dctHeaders=dctHeaders, timeout=15)
         oSoup = bs4.BeautifulSoup(oAjaxData.text, 'html.parser')
-
         dctIllustDetials = json.loads(str(oSoup))['body']['illust_details']
         # 动图
         bGif = bool(dctIllustDetials.get('ugoira_meta'))
@@ -144,7 +169,7 @@ class CReptileBase:       # 爬虫基类
         lstImg = []
         lstDelay = []
         for sImgName in lstTempFile:
-            lstDelay.append(int(dictFrams[sImgName])/100.0)
+            lstDelay.append(dictFrams[sImgName])
             lstImg.append(imageio.imread(os.path.join(sTempPath, sImgName)))
         imageio.mimsave(sGifPath, lstImg, duration=lstDelay, loop=0)
         os.remove(sDownPath)

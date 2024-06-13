@@ -10,7 +10,7 @@ WORDS = '碧蓝航线'
 
 # 页签
 PAGE_START = 1
-PAGE_END = 50
+PAGE_END = 100
 
 # 收藏值
 COLLECTION_THRESHOLD = 500
@@ -32,9 +32,8 @@ class CPixivSearch(reptile_base.CReptileBase):
             ctrl_common.CoutLog("当前进度【第{0}页】".format(iPage))
             sSearchUrl = URL_SEARCH.format(WORDS, WORDS, iPage)
             dctPageData = self._getPageJsonData(sSearchUrl)
-            lstInfoItems = self._getAnalysisDate(dctPageData)
-            for dctItem in lstInfoItems:
-                self._getPicture(dctItem)
+            self._getAnalysisDate(dctPageData)
+            self.RunDownThread()
 
     def _getAnalysisDate(self, dctPageData):
         lstMangaData = dctPageData['body']['illustManga']['data']
@@ -49,7 +48,7 @@ class CPixivSearch(reptile_base.CReptileBase):
                     'tags': dctInfo['tags'],  # 标签
                     'xRestrict': dctInfo['xRestrict'],  # 限制（R18）
                 })
-        return lstInfoItems
+        self.m_lstInfoItems = lstInfoItems
 
     def _checkCollection(self, dctInfo):
         iCollection = COLLECTION_THRESHOLD

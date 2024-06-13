@@ -23,9 +23,8 @@ class CPixivPainter(reptile_base.CReptileBase):
         ctrl_common.CoutLog("开始爬取【指定画师:{0}】".format(PAINTER_ID))
         sPainterUrl = URL_PAINTER_ILLUSTS_ID.format(PAINTER_ID)
         dctPageData = self._getPageJsonData(sPainterUrl)
-        lstInfoItems = self._getAnalysisDate(dctPageData)
-        for dctItem in lstInfoItems:
-            self._getPicture(dctItem)
+        self._getAnalysisDate(dctPageData)
+        self.RunDownThread()
 
     def _getAnalysisDate(self, dctPageData):
         # 获取作品信息
@@ -56,4 +55,4 @@ class CPixivPainter(reptile_base.CReptileBase):
                     'tags': dctInfo['tags'],  # 标签
                     'xRestrict': dctInfo['xRestrict'],  # 限制（R18）
                 })
-        return lstInfoItems
+        self.m_lstInfoItems = lstInfoItems

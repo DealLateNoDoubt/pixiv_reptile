@@ -8,8 +8,12 @@ REPTILE_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/201001
 # endregion
 
 # region Cookies
-PIXIV_COOKIES = ''  # 填写登录p站后的COOKIES
+PIXIV_COOKIES = ''
 COOKIE_HEAD = 'PHPSESSID='
+# endregion
+
+# region 线程数量
+NUM_THREAD = 5
 # endregion
 
 # region 重试次数
@@ -26,5 +30,5 @@ PICTURE_AJAX_URL = 'https://www.pixiv.net/touch/ajax/illust/details?illust_id={0
 # endregion
 
 # region 保存地址
-SAVE_PATH = 'E:\\图集\\'
+SAVE_PATH = 'F:\\图集\\'
 # endregion

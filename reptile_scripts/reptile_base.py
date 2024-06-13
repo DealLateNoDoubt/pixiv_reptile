@@ -105,7 +105,11 @@ class CReptileBase:       # 爬虫基类
         sPictureAjaxUrl = defines.PICTURE_AJAX_URL.format(iPictureID)
         oAjaxData = self._sendRequest(sPictureAjaxUrl, dctHeaders=dctHeaders, timeout=15)
         oSoup = bs4.BeautifulSoup(oAjaxData.text, 'html.parser')
-        dctIllustDetials = json.loads(str(oSoup))['body']['illust_details']
+        try:
+            dctIllustDetials = json.loads(str(oSoup))['body']['illust_details']
+        except Exception as e:
+            print("dctIllustDetials", dctIllustDetials, iPictureID, sPictureAjaxUrl)
+            return
         # 动图
         bGif = bool(dctIllustDetials.get('ugoira_meta'))
         # 多图
@@ -138,9 +142,8 @@ class CReptileBase:       # 爬虫基类
             num_mange_thread = defines.MANGE_NUM_THREAD if num_len > defines.MANGE_NUM_THREAD else num_len
             elements = num_len // num_mange_thread
             remaining_elements = num_len % num_mange_thread
-            lst_threads = []
             def _downManageThread(start, end):
-                for i in range(start, end + 1):
+                for i in range(start, end+1):
                     sDownUrl = pre[i]['url_big']
                     sPictureSuffix = sDownUrl[-6:]
                     sPicturePath = sPictureSuffix
@@ -148,16 +151,11 @@ class CReptileBase:       # 爬虫基类
                         sPicturePath = '_'.join([iPictureID, sPictureName, sPictureSuffix[1:]])
                     sDownPath = os.path.join(dir, sPicturePath)
                     self._downOne(sDownUrl, dctHeaders, sDownPath)
-
             for i in range(num_mange_thread):
                 start = i * elements + min(i, remaining_elements)
                 end = start + elements + (1 if i < remaining_elements else 0) - 1
                 thread = threading.Thread(target=_downManageThread, args=(start, end))
-                lst_threads.append(thread)
                 thread.start()
-            for thread in lst_threads:
-                thread.join()
-            del lst_threads[:]
         else:
             # 单图
             sDownUrl = dctIllustDetials['url_big']

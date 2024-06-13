@@ -135,7 +135,7 @@ class CReptileBase:       # 爬虫基类
         elif bManga:
             # 多图
             pre = dctIllustDetials['manga_a']
-            dir = os.path.join(sSavePath, ''.join([iPictureID, sPictureName]))
+            dir = os.path.join(sSavePath, '_'.join([iPictureID, sPictureName]))
             if not os.path.exists(dir):
                 os.makedirs(dir)
             num_len = len(pre)
@@ -148,7 +148,7 @@ class CReptileBase:       # 爬虫基类
                     sPictureSuffix = sDownUrl[-6:]
                     sPicturePath = sPictureSuffix
                     if sPictureSuffix[0] == 'p':
-                        sPicturePath = '_'.join([iPictureID, sPictureName, sPictureSuffix[1:]])
+                        sPicturePath = '_'.join([sPictureName, sPictureSuffix[1:]])
                     sDownPath = os.path.join(dir, sPicturePath)
                     self._downOne(sDownUrl, dctHeaders, sDownPath)
             for i in range(num_mange_thread):

@@ -98,6 +98,7 @@ class CReptileBase:       # 爬虫基类
         return json.loads(sHtml)
 
     def _getPicture(self, dctInfo):
+        ipainterId = dctInfo['painterId']
         iPictureID = dctInfo['pictureId']
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
         dctHeaders['Referer'] = defines.PICTURE_URL.format(iPictureID)
@@ -105,11 +106,13 @@ class CReptileBase:       # 爬虫基类
         sPictureAjaxUrl = defines.PICTURE_AJAX_URL.format(iPictureID)
         oAjaxData = self._sendRequest(sPictureAjaxUrl, dctHeaders=dctHeaders, timeout=15)
         oSoup = bs4.BeautifulSoup(oAjaxData.text, 'html.parser')
-        try:
-            dctIllustDetials = json.loads(str(oSoup))['body']['illust_details']
-        except Exception as e:
-            print("dctIllustDetials", dctIllustDetials, iPictureID, sPictureAjaxUrl)
+        # 兼容爬太快限制导致数据为空的情况
+        dctBody = json.loads(str(oSoup))['body']
+        if not dctBody:
+            self._sleep()
+            self._getPicture(dctInfo)
             return
+        dctIllustDetials = json.loads(str(oSoup))['body']['illust_details']
         # 动图
         bGif = bool(dctIllustDetials.get('ugoira_meta'))
         # 多图
@@ -117,9 +120,9 @@ class CReptileBase:       # 爬虫基类
 
         sPictureName = ctrl_common.ExchangeFilePath(dctInfo['title'])
         sPainterName = ctrl_common.ExchangeFilePath(dctInfo['painterName'])
-        iPainterID = dctInfo['pictureId']
+
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
-        sSavePath = os.path.join(defines.SAVE_PATH, sPainterName)
+        sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([ipainterId, sPainterName]))
         if bGif:
             sSavePath = os.path.join(sSavePath, 'gif')
         if not ctrl_common.CheckFileIsExists(sSavePath):
@@ -159,7 +162,7 @@ class CReptileBase:       # 爬虫基类
         else:
             # 单图
             sDownUrl = dctIllustDetials['url_big']
-            sPicturePath = '_'.join([iPainterID, sPictureName, sDownUrl[-4:]])
+            sPicturePath = '_'.join([iPictureID, sPictureName, sDownUrl[-4:]])
             sDownPath = os.path.join(sSavePath, sPicturePath)
             self._downOne(sDownUrl, dctHeaders, sDownPath)
 

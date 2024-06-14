@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import datetime
 import collections
 
@@ -40,3 +41,49 @@ def CoutLog(sLog, bTime=True):
     with open(sLogPath, 'w') as file:
         file.writelines(lines)
         file.close()
+
+
+def InitLocalInfo(iPainterId, sPainterName):
+    sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([iPainterId, sPainterName]))
+    if not os.path.exists(sSavePath):
+        os.makedirs(sSavePath)
+    _createDB(sSavePath)
+    return sSavePath
+
+
+def CheckHavePicture(sSavePath, iPictureID):
+    # 检查是否已经存在图片
+    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    if not os.path.exists(sDBPath):
+        _createDB(sDBPath)
+        return False
+    conn = sqlite3.connect(sDBPath)
+    cursor = conn.cursor()
+    cursor.execute('SELECT 1 FROM pictures WHERE picture_id = ?', (str(iPictureID),))
+    rows = cursor.fetchall()
+    conn.close()
+    return bool(len(rows)>0)
+
+def InsertPicture(sSavePath, iPictureID):
+    # 插入图片
+    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    conn = sqlite3.connect(sDBPath)
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO pictures (picture_id) VALUES (?)', (str(iPictureID),))
+    conn.commit()
+    conn.close()
+
+def _createDB(sSavePath):
+    # 创建数据库
+    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    if os.path.exists(sDBPath):
+        return
+    conn = sqlite3.connect(sDBPath)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pictures (
+            picture_id TEXT PRIMARY KEY
+        )
+    ''')
+    conn.commit()
+    conn.close()

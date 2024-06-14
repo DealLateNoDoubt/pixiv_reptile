@@ -40,12 +40,14 @@ class CPixivSearch(reptile_base.CReptileBase):
         lstInfoItems = []
         for dctInfo in lstMangaData:
             if 'id' in dctInfo and self._checkCollection(dctInfo):
+                savePath = ctrl_common.InitLocalInfo(dctInfo['userId'], dctInfo['userName'])
                 lstInfoItems.append({
                     'pictureId': str(dctInfo['id']),  # 图片ID
                     'painterId': dctInfo['userId'],  # 画师ID
                     'painterName': dctInfo['userName'],  # 画师名字
                     'title': dctInfo['title'],  # 标题
                     'tags': dctInfo['tags'],  # 标签
+                    'savePath': savePath,  # 保存路径
                     'xRestrict': dctInfo['xRestrict'],  # 限制（R18）
                 })
         self.m_lstInfoItems = lstInfoItems

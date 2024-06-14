@@ -98,8 +98,10 @@ class CReptileBase:       # 爬虫基类
         return json.loads(sHtml)
 
     def _getPicture(self, dctInfo):
-        ipainterId = dctInfo['painterId']
+        sSavePath = dctInfo['savePath']
         iPictureID = dctInfo['pictureId']
+        if ctrl_common.CheckHavePicture(sSavePath, iPictureID):
+            return
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
         dctHeaders['Referer'] = defines.PICTURE_URL.format(iPictureID)
         self._sleep()
@@ -117,12 +119,8 @@ class CReptileBase:       # 爬虫基类
         bGif = bool(dctIllustDetials.get('ugoira_meta'))
         # 多图
         bManga = bool(dctIllustDetials.get('manga_a'))
-
         sPictureName = ctrl_common.ExchangeFilePath(dctInfo['title'])
-        sPainterName = ctrl_common.ExchangeFilePath(dctInfo['painterName'])
-
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
-        sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([ipainterId, sPainterName]))
         if bGif:
             sSavePath = os.path.join(sSavePath, 'gif')
         if not ctrl_common.CheckFileIsExists(sSavePath):
@@ -165,6 +163,7 @@ class CReptileBase:       # 爬虫基类
             sPicturePath = '_'.join([iPictureID, sPictureName, sDownUrl[-4:]])
             sDownPath = os.path.join(sSavePath, sPicturePath)
             self._downOne(sDownUrl, dctHeaders, sDownPath)
+        ctrl_common.InsertPicture(sSavePath, iPictureID)
 
     def _downOne(self, sDownUrl, dctHeaders, sDownPath):
         # 下载单个内容

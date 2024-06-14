@@ -44,7 +44,7 @@ def CoutLog(sLog, bTime=True):
 
 
 def InitLocalInfo(iPainterId, sPainterName):
-    sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([iPainterId, sPainterName]))
+    sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([iPainterId, ExchangeFilePath(sPainterName)]))
     if not os.path.exists(sSavePath):
         os.makedirs(sSavePath)
     _createDB(sSavePath)
@@ -55,7 +55,7 @@ def CheckHavePicture(sSavePath, iPictureID):
     # 检查是否已经存在图片
     sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
     if not os.path.exists(sDBPath):
-        _createDB(sDBPath)
+        _createDB(sSavePath)
         return False
     conn = sqlite3.connect(sDBPath)
     cursor = conn.cursor()

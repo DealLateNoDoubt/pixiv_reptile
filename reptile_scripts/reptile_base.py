@@ -122,15 +122,14 @@ class CReptileBase:       # 爬虫基类
         sPictureName = ctrl_common.ExchangeFilePath(dctInfo['title'])
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
         if bGif:
-            sSavePath = os.path.join(sSavePath, 'gif')
-        if not ctrl_common.CheckFileIsExists(sSavePath):
-            os.makedirs(sSavePath)
-        if bGif:
+            dir = os.path.join(sSavePath, 'gif')
+            if not os.path.exists(dir):
+                os.makedirs(dir)
             sZipUrl = dctIllustDetials['ugoira_meta']['src']
             sZipPath = '_'.join([iPictureID, sPictureName, sZipUrl[-4:]])
             dictFrams = {d['file']: d['delay'] for d in dctIllustDetials['ugoira_meta']['frames']}
-            sDownPath = os.path.join(sSavePath, sZipPath)
-            sTempPath = os.path.join(sSavePath, 'temp_{}'.format(iPictureID))
+            sDownPath = os.path.join(dir, sZipPath)
+            sTempPath = os.path.join(dir, 'temp_{}'.format(iPictureID))
             lstTempFile = self._unZip(sDownPath, sTempPath, sZipUrl, dctHeaders)
             self._mergerZipGif(lstTempFile, dictFrams, sTempPath, sDownPath)
         elif bManga:

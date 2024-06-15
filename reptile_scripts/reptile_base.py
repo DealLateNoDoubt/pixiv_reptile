@@ -21,6 +21,8 @@ class CReptileBase:       # 爬虫基类
         self._initData()
 
     def OnStart(self):
+        if not os.path.exists(defines.PICTURES_PATH):
+            os.makedirs(defines.PICTURES_PATH)
         self.SetCookie(defines.PIXIV_COOKIES)
         self._sendRequest(sUrl=defines.PIXIV_URL, dctHeaders=self.m_dctHeaders, timeout=5)
 
@@ -100,7 +102,8 @@ class CReptileBase:       # 爬虫基类
     def _getPicture(self, dctInfo):
         sSavePath = dctInfo['savePath']
         iPictureID = dctInfo['pictureId']
-        if ctrl_common.CheckHavePicture(sSavePath, iPictureID):
+        iPainterId = dctInfo['painterId']
+        if ctrl_common.CheckHavePicture(iPainterId, iPictureID):
             return
         dctHeaders = copy.deepcopy(self.m_dctHeaders)
         dctHeaders['Referer'] = defines.PICTURE_URL.format(iPictureID)
@@ -162,7 +165,7 @@ class CReptileBase:       # 爬虫基类
             sPicturePath = '_'.join([iPictureID, sPictureName, sDownUrl[-4:]])
             sDownPath = os.path.join(sSavePath, sPicturePath)
             self._downOne(sDownUrl, dctHeaders, sDownPath)
-        ctrl_common.InsertPicture(sSavePath, iPictureID)
+        ctrl_common.InsertPicture(iPainterId, iPictureID)
 
     def _downOne(self, sDownUrl, dctHeaders, sDownPath):
         # 下载单个内容

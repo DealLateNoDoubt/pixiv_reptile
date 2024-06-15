@@ -35,5 +35,6 @@ SAVE_PATH = 'F:\\图集\\'
 # endregion
 
 # region 数据库信息
-PICTURES_DB = 'pictures.db'
+PICTURES_PATH = f'{SAVE_PATH}_PicturesDB/'
+PICTURES_DB = '{0}.db'
 # endregion

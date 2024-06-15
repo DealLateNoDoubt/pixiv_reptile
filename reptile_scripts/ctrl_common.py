@@ -47,15 +47,15 @@ def InitLocalInfo(iPainterId, sPainterName):
     sSavePath = os.path.join(defines.SAVE_PATH, '_'.join([iPainterId, ExchangeFilePath(sPainterName)]))
     if not os.path.exists(sSavePath):
         os.makedirs(sSavePath)
-    _createDB(sSavePath)
+    _createDB(iPainterId)
     return sSavePath
 
 
-def CheckHavePicture(sSavePath, iPictureID):
+def CheckHavePicture(iPainterId, iPictureID):
     # 检查是否已经存在图片
-    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    sDBPath = os.path.join(defines.PICTURES_PATH, defines.PICTURES_DB.format(iPainterId))
     if not os.path.exists(sDBPath):
-        _createDB(sSavePath)
+        _createDB(iPainterId)
         return False
     conn = sqlite3.connect(sDBPath)
     cursor = conn.cursor()
@@ -64,18 +64,18 @@ def CheckHavePicture(sSavePath, iPictureID):
     conn.close()
     return bool(len(rows)>0)
 
-def InsertPicture(sSavePath, iPictureID):
+def InsertPicture(iPainterId, iPictureID):
     # 插入图片
-    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    sDBPath = os.path.join(defines.PICTURES_PATH, defines.PICTURES_DB.format(iPainterId))
     conn = sqlite3.connect(sDBPath)
     cursor = conn.cursor()
     cursor.execute('INSERT INTO pictures (picture_id) VALUES (?)', (str(iPictureID),))
     conn.commit()
     conn.close()
 
-def _createDB(sSavePath):
+def _createDB(iPainterId):
     # 创建数据库
-    sDBPath = os.path.join(sSavePath, defines.PICTURES_DB)
+    sDBPath = os.path.join(defines.PICTURES_PATH, defines.PICTURES_DB.format(iPainterId))
     if os.path.exists(sDBPath):
         return
     conn = sqlite3.connect(sDBPath)

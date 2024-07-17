@@ -7,11 +7,15 @@ import random
 import shutil
 import imageio
 import zipfile
+
+import torch
 import urllib3
 import requests
 import threading
 from . import defines
 from . import ctrl_common
+from tqdm import tqdm
+from ultralytics import YOLO
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # 取消警告
 
@@ -176,6 +180,9 @@ class CReptileBase:       # 爬虫基类
         with open(sDownPath, 'ab') as file:
             file.write(oSession.content)
             file.close()
+        recommend = self.yolo_check_recommend(source=sDownPath)
+        if recommend:
+            ctrl_common.CoutLog("{}-推荐".format(sDownPath))
 
     def _unZip(self, sDownPath, sTempPath, sZipUrl, dctHeaders):
         self._downOne(sZipUrl, dctHeaders, sDownPath)
@@ -203,3 +210,24 @@ class CReptileBase:       # 爬虫基类
         if dctInfo['xRestrict'] == 1 or 'R-18' in dctInfo['tags']:
             return True
         return False
+
+    def yolo_check_recommend(self, source):
+        model = YOLO("../other/pose-best.pt")
+        results = model.predict(
+            source=source,
+            imgsz=640,  # 模型训练时大小
+            half=True,  # 半精度推理，加快推理速度
+        )
+        recommend = False
+        for result in tqdm(results):
+            if recommend:
+                return recommend
+            keypoints = result.keypoints
+            if keypoints.conf.shape != torch.Size([0]):
+                points = keypoints.conf[0]
+                recommend = recommend or self.check_is_recommend(points)
+        return recommend
+
+    def check_is_recommend(self, points):
+        head = bool(points[0] > 0.85 and (points[1] > 0.85 or points[1] > 0.85))
+        return head

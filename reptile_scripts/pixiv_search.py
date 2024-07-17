@@ -1,6 +1,6 @@
 import copy
 from bs4 import BeautifulSoup
-
+from tqdm import tqdm
 from . import ctrl_common
 from . import reptile_base
 
@@ -38,7 +38,7 @@ class CPixivSearch(reptile_base.CReptileBase):
     def _getAnalysisDate(self, dctPageData):
         lstMangaData = dctPageData['body']['illustManga']['data']
         lstInfoItems = []
-        for dctInfo in lstMangaData:
+        for dctInfo in tqdm(lstMangaData):
             if 'id' in dctInfo and self._checkCollection(dctInfo):
                 savePath = ctrl_common.InitLocalInfo(dctInfo['userId'], dctInfo['userName'])
                 lstInfoItems.append({

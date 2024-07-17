@@ -1,5 +1,5 @@
 import json
-
+from tqdm import tqdm
 from . import reptile_base
 from . import ctrl_common
 
@@ -37,7 +37,7 @@ class CPixivPainter(reptile_base.CReptileBase):
         self.m_dctHeaders['Referer'] = URL_PAINTER_ILLUSTS_ID.format(PAINTER_ID)
 
         lstInfoItems = []
-        for i in range(0, len(lstPictureID), 50):
+        for i in tqdm(range(0, len(lstPictureID), 50)):
             ids_str = ''
             iEnd = min(len(lstPictureID), i+50)
             for sID in lstPictureID[i:iEnd]:

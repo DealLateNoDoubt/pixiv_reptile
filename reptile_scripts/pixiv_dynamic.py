@@ -1,5 +1,6 @@
 from . import reptile_base
 from . import ctrl_common
+from tqdm import tqdm
 
 # 爬取页数
 PAGE_START = 1
@@ -25,7 +26,7 @@ class CPixivDynamic(reptile_base.CReptileBase):
     def _getAnalysisDate(self, dctPageData):
         dctIllust = dctPageData['body']['thumbnails']['illust'] # 根据网页格式强制获取数据
         lstInfoItems = []
-        for dctInfo in dctIllust:
+        for dctInfo in tqdm(dctIllust):
             savePath = ctrl_common.InitLocalInfo(dctInfo['userId'], dctInfo['userName'])
             lstInfoItems.append({
                 'pictureId': str(dctInfo['id']),   # 图片ID
